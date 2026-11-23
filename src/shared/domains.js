@@ -1,4 +1,4 @@
-// Сервисы Google AI и их домены.
+// Сервисы ИИ и их домены.
 // Вход в Google (accounts.google.com) и статика (gstatic/googleusercontent)
 // намеренно НЕ включены, чтобы не ломать вход и не гонять лишний трафик через прокси.
 
@@ -17,6 +17,31 @@ export const SERVICES = [
       'proactivebackend-pa.googleapis.com',
       'content-push.googleapis.com',
       'geller-pa.googleapis.com'
+    ]
+  },
+  {
+    id: 'claude',
+    name: 'Claude',
+    defaultEnabled: true,
+    homeUrl: 'https://claude.ai/',
+    domains: [
+      'claude.ai',
+      'claude.com',
+      'anthropic.com',
+      'claudeusercontent.com'
+    ]
+  },
+  {
+    id: 'chatgpt',
+    name: 'ChatGPT',
+    defaultEnabled: true,
+    homeUrl: 'https://chatgpt.com/',
+    domains: [
+      'chatgpt.com',
+      'openai.com',
+      'oaistatic.com',
+      'oaiusercontent.com',
+      'sora.com'
     ]
   },
   {
@@ -72,7 +97,7 @@ export const SERVICES = [
   }
 ];
 
-// Страны, из которых Google стабильно отказывает в доступе к Gemini (код ISO-3166 alpha-2).
+// Страны, из которых сервисы ИИ стабильно отказывают в доступе (код ISO-3166 alpha-2).
 export const BLOCKED_COUNTRIES = new Set([
   'RU', 'BY', 'CN', 'HK', 'MO', 'IR', 'KP', 'CU', 'SY'
 ]);

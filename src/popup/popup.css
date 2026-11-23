@@ -240,51 +240,130 @@ body {
   color: #64748b;
 }
 
-/* Чипы сервисов */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
+/* Сетка сервисов с иконками и тумблерами */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
 }
 
-.chip {
-  display: inline-flex;
+.service-item {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border-radius: 999px;
+  justify-content: space-between;
+  gap: 7px;
+  padding: 7px 9px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.service-item:hover {
+  border-color: rgba(142, 202, 242, 0.34);
+}
+
+.service-item.active {
+  border-color: rgba(142, 202, 242, 0.36);
+  background: linear-gradient(135deg, rgba(142, 202, 242, 0.11), var(--surface));
+}
+
+.service-item.span-full {
+  grid-column: 1 / -1;
+}
+
+.service-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.service-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.service-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.service-icon.icon-gemini { background: rgba(142, 202, 242, 0.16); color: #8ecaf2; }
+.service-icon.icon-claude { background: rgba(217, 119, 87, 0.18); color: #e88a68; }
+.service-icon.icon-chatgpt { background: rgba(16, 163, 127, 0.18); color: #34d399; }
+.service-icon.icon-aistudio { background: rgba(147, 197, 253, 0.15); color: #93c5fd; }
+.service-icon.icon-notebooklm { background: rgba(165, 180, 252, 0.15); color: #a5b4fc; }
+.service-icon.icon-labs { background: rgba(196, 181, 253, 0.15); color: #c4b5fd; }
+.service-icon.icon-google_sorry { background: rgba(148, 163, 184, 0.14); color: #94a3b8; }
+
+.service-name {
   font-size: 12px;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.16s ease;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.16s ease;
 }
 
-.chip::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #475569;
-  transition: background 0.16s ease, box-shadow 0.16s ease;
-}
-
-.chip:hover {
-  border-color: rgba(142, 202, 242, 0.35);
+.service-item.active .service-name {
   color: var(--text);
 }
 
-.chip.active {
-  background: var(--accent-soft);
-  border-color: var(--border-strong);
-  color: #e6f4fe;
+/* Мини-тумблер сервиса */
+.mini-switch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
-.chip.active::before {
+.mini-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.mini-slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #232d40;
+  border: 1px solid var(--border);
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.mini-slider::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 2px;
+  top: 2px;
+  border-radius: 50%;
+  background: #94a3b8;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.mini-switch input:checked + .mini-slider {
   background: var(--accent);
-  box-shadow: 0 0 8px rgba(142, 202, 242, 0.65);
+  border-color: rgba(142, 202, 242, 0.7);
+}
+
+.mini-switch input:checked + .mini-slider::before {
+  transform: translateX(14px);
+  background: var(--accent-ink);
 }
 
 /* Маршруты */

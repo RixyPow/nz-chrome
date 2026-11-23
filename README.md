@@ -1,6 +1,6 @@
 # NZ Chrome
 
-Браузерное расширение (Chromium Manifest V3) для точечного доступа к **Gemini**, **AI Studio**, **NotebookLM** и **Google Labs** через ваш или локальный прокси (например, NetZapret, Xray, Clash).
+Браузерное расширение (Chromium Manifest V3) для точечного доступа к **Gemini**, **Claude**, **ChatGPT**, **AI Studio**, **NotebookLM** и **Google Labs** через ваш или локальный прокси (например, NetZapret, Xray, Clash).
 
 Весь остальной трафик браузера (включая вход в Google-аккаунт `accounts.google.com`, видео, банки и обычные сайты) идёт напрямую.
 

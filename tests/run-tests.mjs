@@ -139,14 +139,25 @@ test('route-table: порог смены лидера 20%', () => {
   assert.equal(ranked2[0].id, 'b');
 });
 
-test('domains: включение и выключение сервисов', () => {
+test('domains: включение и выключение сервисов (включая Claude и ChatGPT)', () => {
   const defaults = defaultEnabledServices();
   assert.equal(defaults.gemini, true);
+  assert.equal(defaults.claude, true);
+  assert.equal(defaults.chatgpt, true);
   assert.equal(defaults.labs, false);
+
+  const activeDefault = collectActiveDomains(defaults);
+  assert.ok(activeDefault.includes('gemini.google.com'));
+  assert.ok(activeDefault.includes('claude.ai'));
+  assert.ok(activeDefault.includes('anthropic.com'));
+  assert.ok(activeDefault.includes('chatgpt.com'));
+  assert.ok(activeDefault.includes('openai.com'));
+
+  const withoutClaude = collectActiveDomains({ ...defaults, claude: false });
+  assert.equal(withoutClaude.includes('claude.ai'), false);
 
   const withLabs = collectActiveDomains({ ...defaults, labs: true });
   assert.ok(withLabs.includes('labs.google'));
-  assert.ok(withLabs.includes('gemini.google.com'));
 });
 
 let failed = 0;

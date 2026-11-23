@@ -5,6 +5,7 @@
 (function () {
   const REFUSAL_URL_PATTERNS = [
     /\/unavailable/i,
+    /app-unavailable-in-region/i,
     /not-available/i,
     /region-not-supported/i,
     /unsupported-country/i,
@@ -14,6 +15,9 @@
   const REFUSAL_TEXT_PATTERNS = [
     /gemini isn['’]t currently supported in your country/i,
     /gemini is not available in your country/i,
+    /claude is not available in your country/i,
+    /claude isn['’]t available in your region/i,
+    /openai['’]s services are not available in your country/i,
     /not available in your country/i,
     /user location is not supported/i,
     /isn['’]t available in your region/i,
@@ -43,6 +47,18 @@
         document.querySelector(
           'rich-textarea, [contenteditable="true"][role="textbox"], chat-window, input-area-v2, .ql-editor'
         )
+      );
+    }
+    if (host.includes('claude.ai') || host.includes('claude.com')) {
+      return Boolean(
+        document.querySelector(
+          '[contenteditable="true"].ProseMirror, fieldset [contenteditable="true"], textarea'
+        )
+      );
+    }
+    if (host.includes('chatgpt.com') || host.includes('chat.openai.com')) {
+      return Boolean(
+        document.querySelector('#prompt-textarea, [data-testid="send-button"], main textarea')
       );
     }
     if (host.includes('aistudio.google.com')) {
