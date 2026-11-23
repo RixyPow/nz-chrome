@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NZ Chrome</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <img src="../../assets/icon-48.png" alt="NZ Chrome" class="brand-icon" />
+        <div>
+          <div class="brand-title">NZ Chrome</div>
+          <div class="brand-sub">Точечный доступ к Google AI</div>
+        </div>
+      </div>
+      <label class="switch" title="Включить или выключить маршрутизацию">
+        <input type="checkbox" id="toggle-enabled" />
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <section id="status-card" class="status-card status-neutral">
+      <div class="status-dot"></div>
+      <div class="status-body">
+        <div class="status-head">
+          <div id="status-title" class="status-title">Загрузка…</div>
+          <div id="status-pills" class="status-pills"></div>
+        </div>
+        <div id="status-desc" class="status-desc"></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-header">
+        <div class="block-title">Сервисы через прокси</div>
+        <span class="block-note">остальное — напрямую</span>
+      </div>
+      <div id="services-list" class="chips"></div>
+    </section>
+
+    <section class="block">
+      <div class="block-header">
+        <div class="block-title">Маршруты</div>
+        <button id="btn-probe-all" class="btn-link" type="button">Проверить все</button>
+      </div>
+      <div id="routes-list" class="routes-list"></div>
+    </section>
+
+    <section class="block add-card">
+      <div class="block-title">Добавить прокси</div>
+      <form id="add-form" class="add-form">
+        <input
+          id="proxy-input"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="host:port, user:pass@host:port или socks5://..."
+        />
+        <div class="add-row">
+          <input
+            id="proxy-name"
+            type="text"
+            autocomplete="off"
+            placeholder="Название (необязательно)"
+          />
+          <button type="submit" class="btn-primary">Добавить</button>
+        </div>
+      </form>
+      <div id="form-feedback" class="feedback hidden"></div>
+
+      <details class="presets-box">
+        <summary>Локальные пресеты (NetZapret, Xray, Clash)</summary>
+        <div id="local-presets" class="presets-list"></div>
+      </details>
+    </section>
+
+    <footer class="footer">
+      <button id="btn-open-gemini" class="btn-accent" type="button">Открыть Gemini</button>
+      <button id="btn-toggle-logs" class="btn-secondary" type="button">Журнал</button>
+    </footer>
+
+    <section id="logs-panel" class="logs-panel hidden">
+      <div class="block-header">
+        <div class="block-title">Журнал событий</div>
+        <button id="btn-clear-logs" class="btn-link" type="button">Очистить</button>
+      </div>
+      <div id="logs-list" class="logs-list"></div>
+    </section>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
