@@ -19,6 +19,12 @@ const btnToggleLogs = document.getElementById('btn-toggle-logs');
 const btnClearLogs = document.getElementById('btn-clear-logs');
 const logsPanel = document.getElementById('logs-panel');
 const logsList = document.getElementById('logs-list');
+const updateBanner = document.getElementById('update-banner');
+const updateTitle = document.getElementById('update-title');
+const btnUpdateDownload = document.getElementById('btn-update-download');
+const btnUpdateNotes = document.getElementById('btn-update-notes');
+const versionLabel = document.getElementById('version-label');
+const btnCheckUpdate = document.getElementById('btn-check-update');
 
 let currentState = null;
 
@@ -303,9 +309,45 @@ function renderLogs(state) {
   }
 }
 
+function renderUpdate(state) {
+  const info = state.updateInfo || {};
+  const current = info.currentVersion || '0.1.0';
+
+  if (info.checking) {
+    versionLabel.textContent = `v${current} · проверяю…`;
+    btnCheckUpdate.disabled = true;
+  } else if (info.available) {
+    versionLabel.textContent = `v${current} → v${info.latestVersion}`;
+    btnCheckUpdate.disabled = false;
+  } else if (info.error) {
+    versionLabel.textContent = `v${current} · ${info.error}`;
+    btnCheckUpdate.disabled = false;
+  } else if (info.checkedAt) {
+    versionLabel.textContent = `v${current} · актуально`;
+    btnCheckUpdate.disabled = false;
+  } else {
+    versionLabel.textContent = `v${current}`;
+    btnCheckUpdate.disabled = false;
+  }
+
+  if (info.available) {
+    updateBanner.classList.remove('hidden');
+    updateTitle.textContent = `Доступна NZ Chrome ${info.latestVersion}`;
+    btnUpdateDownload.onclick = () => {
+      chrome.tabs.create({ url: info.downloadUrl || info.releaseUrl });
+    };
+    btnUpdateNotes.onclick = () => {
+      chrome.tabs.create({ url: info.releaseUrl });
+    };
+  } else {
+    updateBanner.classList.add('hidden');
+  }
+}
+
 function render(state) {
   currentState = state;
   toggleEnabled.checked = Boolean(state.enabled);
+  renderUpdate(state);
   renderStatus(state);
   renderServices(state);
   renderRoutes(state);
@@ -379,6 +421,14 @@ btnToggleLogs.addEventListener('click', () => {
 
 btnClearLogs.addEventListener('click', async () => {
   const resp = await send({ type: 'CLEAR_LOGS' });
+  if (resp.ok && resp.state) render(resp.state);
+});
+
+btnCheckUpdate.addEventListener('click', async () => {
+  btnCheckUpdate.disabled = true;
+  versionLabel.textContent = `v${currentState?.updateInfo?.currentVersion || '0.1.0'} · проверяю…`;
+  const resp = await send({ type: 'CHECK_UPDATE' });
+  btnCheckUpdate.disabled = false;
   if (resp.ok && resp.state) render(resp.state);
 });
 

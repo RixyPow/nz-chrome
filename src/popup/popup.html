@@ -22,6 +22,17 @@
       </label>
     </header>
 
+    <section id="update-banner" class="update-banner hidden">
+      <div class="update-text">
+        <div id="update-title" class="update-title">Доступно обновление</div>
+        <div class="update-sub">Распакуйте архив поверх папки и нажмите ↻ в chrome://extensions</div>
+      </div>
+      <div class="update-actions">
+        <button id="btn-update-download" class="btn-update" type="button">Скачать</button>
+        <button id="btn-update-notes" class="btn-link" type="button">Что нового</button>
+      </div>
+    </section>
+
     <section id="status-card" class="status-card status-neutral">
       <div class="status-dot"></div>
       <div class="status-body">
@@ -81,6 +92,11 @@
       <button id="btn-open-gemini" class="btn-accent" type="button">Открыть Gemini</button>
       <button id="btn-toggle-logs" class="btn-secondary" type="button">Журнал</button>
     </footer>
+
+    <div class="version-bar">
+      <span id="version-label" class="version-label">v0.1.0</span>
+      <button id="btn-check-update" class="btn-link" type="button">Проверить обновления</button>
+    </div>
 
     <section id="logs-panel" class="logs-panel hidden">
       <div class="block-header">

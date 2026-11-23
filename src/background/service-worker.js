@@ -16,6 +16,11 @@ import {
   recordProofOk,
   selectActiveRoutes
 } from '../shared/route-table.js';
+import {
+  LATEST_RELEASE_API,
+  UPDATE_CHECK_INTERVAL_MS,
+  parseReleaseResponse
+} from '../shared/updater.js';
 
 const STORAGE_KEY = 'gemini_access_state_v1';
 const ALARM_WARM = 'warm_probe_alarm';
@@ -27,6 +32,7 @@ let activeProbeOverride = null;
 const authAttempts = new Map();
 
 function defaultState() {
+  const currentVersion = chrome.runtime.getManifest().version;
   return {
     enabled: true,
     services: defaultEnabledServices(),
@@ -35,6 +41,16 @@ function defaultState() {
     activeRouteId: null,
     proxyConflict: null,
     probing: false,
+    updateInfo: {
+      available: false,
+      currentVersion,
+      latestVersion: currentVersion,
+      releaseUrl: null,
+      downloadUrl: null,
+      checkedAt: 0,
+      checking: false,
+      error: null
+    },
     logs: []
   };
 }
@@ -307,6 +323,80 @@ async function probeAllRoutes() {
   return loadState();
 }
 
+async function checkForUpdates(force = false) {
+  let state = await loadState();
+  const currentVersion = chrome.runtime.getManifest().version;
+  const now = Date.now();
+  const prev = state.updateInfo || {};
+
+  if (!force && prev.checkedAt && now - prev.checkedAt < UPDATE_CHECK_INTERVAL_MS) {
+    return state;
+  }
+
+  state.updateInfo = {
+    ...prev,
+    currentVersion,
+    checking: true,
+    error: null
+  };
+  await saveState(state);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+  try {
+    const resp = await fetch(LATEST_RELEASE_API, {
+      cache: 'no-store',
+      headers: { Accept: 'application/vnd.github+json' },
+      signal: controller.signal
+    });
+    if (!resp.ok) {
+      throw new Error(`GitHub HTTP ${resp.status}`);
+    }
+    const json = await resp.json();
+    const parsed = parseReleaseResponse(json, currentVersion);
+    state = await loadState();
+    if (!parsed.ok) {
+      state.updateInfo = {
+        ...state.updateInfo,
+        currentVersion,
+        checking: false,
+        checkedAt: Date.now(),
+        error: parsed.error
+      };
+    } else {
+      const wasAvailable = Boolean(state.updateInfo?.available && state.updateInfo?.latestVersion === parsed.latestVersion);
+      state.updateInfo = {
+        available: parsed.available,
+        currentVersion,
+        latestVersion: parsed.latestVersion,
+        releaseUrl: parsed.releaseUrl,
+        downloadUrl: parsed.downloadUrl,
+        checkedAt: Date.now(),
+        checking: false,
+        error: null
+      };
+      if (parsed.available && !wasAvailable) {
+        state = appendLog(state, `Доступно обновление NZ Chrome ${parsed.latestVersion}`, 'info');
+      }
+    }
+  } catch (err) {
+    state = await loadState();
+    const msg = err?.name === 'AbortError' ? 'Таймаут проверки GitHub' : (err?.message || 'Ошибка проверки обновлений');
+    state.updateInfo = {
+      ...state.updateInfo,
+      currentVersion,
+      checking: false,
+      checkedAt: Date.now(),
+      error: msg
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+
+  await saveState(state);
+  return state;
+}
+
 // Авторизация HTTP/HTTPS прокси (без сохранения пароля в логах и с защитой от зацикливания)
 chrome.webRequest.onAuthRequired.addListener(
   (details, callback) => {
@@ -356,6 +446,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   const next = await applyProxySettings(state);
   await saveState(next);
   chrome.alarms.create(ALARM_WARM, { periodInMinutes: 10 });
+  checkForUpdates(false);
 });
 
 chrome.runtime.onStartup.addListener(async () => {
@@ -363,10 +454,12 @@ chrome.runtime.onStartup.addListener(async () => {
   const next = await applyProxySettings(state);
   await saveState(next);
   chrome.alarms.create(ALARM_WARM, { periodInMinutes: 10 });
+  checkForUpdates(false);
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== ALARM_WARM) return;
+  checkForUpdates(false);
   const state = await loadState();
   if (!state.enabled || state.routes.length === 0) return;
 
@@ -390,12 +483,17 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
 function sanitizeStateForUi(state) {
   const ranked = rankRoutes(state.routes, Date.now(), state.activeRouteId);
+  const currentVersion = chrome.runtime.getManifest().version;
   return {
     enabled: state.enabled,
     services: state.services,
     activeRouteId: state.activeRouteId,
     proxyConflict: state.proxyConflict,
     probing: state.probing,
+    updateInfo: {
+      ...(state.updateInfo || {}),
+      currentVersion
+    },
     logs: state.logs,
     routes: ranked.map((r) => ({
       id: r.id,
@@ -525,6 +623,11 @@ async function handleMessage(msg) {
       state.logs = [];
       await saveState(state);
       return { ok: true, state: sanitizeStateForUi(state) };
+    }
+
+    case 'CHECK_UPDATE': {
+      const next = await checkForUpdates(true);
+      return { ok: true, state: sanitizeStateForUi(next) };
     }
 
     case 'PROOF_OK': {

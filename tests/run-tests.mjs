@@ -12,6 +12,7 @@ import {
   recordProofOk,
   selectActiveRoutes
 } from '../src/shared/route-table.js';
+import { isNewerVersion, parseReleaseResponse, parseSemver } from '../src/shared/updater.js';
 
 const tests = [];
 function test(name, fn) {
@@ -158,6 +159,33 @@ test('domains: включение и выключение сервисов (вк
 
   const withLabs = collectActiveDomains({ ...defaults, labs: true });
   assert.ok(withLabs.includes('labs.google'));
+});
+
+test('updater: сравнение версий и разбор ответа GitHub Releases', () => {
+  assert.deepEqual(parseSemver('v0.2.1'), [0, 2, 1]);
+  assert.equal(isNewerVersion('0.2.0', '0.1.0'), true);
+  assert.equal(isNewerVersion('v0.1.1', '0.1.0'), true);
+  assert.equal(isNewerVersion('0.1.0', '0.1.0'), false);
+  assert.equal(isNewerVersion('0.0.9', '0.1.0'), false);
+
+  const newer = parseReleaseResponse(
+    {
+      tag_name: 'v0.2.0',
+      html_url: 'https://github.com/RixyPow/nz-chrome/releases/tag/v0.2.0',
+      assets: [
+        { name: 'NZ-Chrome-0.2.0.zip', browser_download_url: 'https://example.com/NZ-Chrome-0.2.0.zip' }
+      ]
+    },
+    '0.1.0'
+  );
+  assert.equal(newer.ok, true);
+  assert.equal(newer.available, true);
+  assert.equal(newer.latestVersion, '0.2.0');
+  assert.equal(newer.downloadUrl, 'https://example.com/NZ-Chrome-0.2.0.zip');
+
+  const pre = parseReleaseResponse({ tag_name: 'v0.3.0', prerelease: true }, '0.1.0');
+  assert.equal(pre.ok, true);
+  assert.equal(pre.available, false);
 });
 
 let failed = 0;
