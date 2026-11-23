@@ -10,7 +10,13 @@ export const SERVICES = [
     homeUrl: 'https://gemini.google.com/app',
     domains: [
       'gemini.google.com',
+      'gemini.google',
+      'gemini.gstatic.com',
       'bard.google.com',
+      'jnn-pa.googleapis.com',
+      'robinfrontend-pa.googleapis.com',
+      'geminiweb-pa.clients.google.com',
+      'geminiweb-pa.clients6.google.com',
       'generativelanguage.googleapis.com',
       'alkalimakersuite-pa.clients6.google.com',
       'waa-pa.clients6.google.com',
@@ -51,9 +57,13 @@ export const SERVICES = [
     homeUrl: 'https://aistudio.google.com/',
     domains: [
       'aistudio.google.com',
+      'ai.studio',
       'makersuite.google.com',
       'generativelanguage.googleapis.com',
       'alkalimakersuite-pa.clients6.google.com',
+      'webchannel-alkalimakersuite-pa.clients6.google.com',
+      'alkalicore-pa.clients6.google.com',
+      'jnn-pa.googleapis.com',
       'ai.google.dev'
     ]
   },
@@ -65,7 +75,10 @@ export const SERVICES = [
     domains: [
       'notebooklm.google.com',
       'notebooklm.google',
-      'tailwind-pa.googleapis.com'
+      'notebooklm-pa.googleapis.com',
+      'notebooklm.googleapis.com',
+      'tailwind-pa.googleapis.com',
+      'jnn-pa.googleapis.com'
     ]
   },
   {
