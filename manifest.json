@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NZ Chrome",
-  "version": "0.3.0",
+  "version": "0.1.0",
   "description": "Точечный доступ к Gemini, Claude, ChatGPT, AI Studio, NotebookLM и Google Labs через ваш или локальный прокси — остальной трафик идёт напрямую.",
   "icons": {
     "16": "assets/icon-16.png",
