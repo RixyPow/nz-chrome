@@ -658,14 +658,19 @@ async function handleMessage(msg) {
         return { ok: true, switched: false };
       }
 
+      const now = Date.now();
       const prevId = state.activeRouteId;
       const prevRoute = state.routes.find((r) => r.id === prevId);
+      const hasFallback = selectActiveRoutes(state.routes, now, prevId).some((r) => r.id !== prevId);
+
       state.routes = state.routes.map((r) =>
-        r.id === prevId ? recordGeoRefusal(r) : r
+        r.id === prevId ? recordGeoRefusal(r, now, { hasFallback }) : r
       );
       state = appendLog(
         state,
-        `Геоблок на ${msg.host || 'Gemini'} через «${prevRoute?.name || '?'}» — ищу другой маршрут`,
+        hasFallback
+          ? `Геоблок на ${msg.host || 'AI'} через «${prevRoute?.name || '?'}» — ищу другой маршрут`
+          : `Геоблок на ${msg.host || 'AI'} через «${prevRoute?.name || '?'}» — запасных нет, прокси остаётся включённым`,
         'warn'
       );
 

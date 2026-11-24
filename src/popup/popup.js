@@ -107,6 +107,10 @@ function renderStatus(state) {
     statusCard.classList.add('status-ok');
     statusTitle.textContent = `Работает · ${active.name}`;
     statusDesc.textContent = 'Подтверждено живым открытием сервиса ИИ.';
+  } else if (active.status === 'refused') {
+    statusCard.classList.add('status-warn');
+    statusTitle.textContent = `Отказ по региону · ${active.name}`;
+    statusDesc.textContent = 'Прокси остаётся включённым. Смените сервер VPN или добавьте другой маршрут.';
   } else if (active.status === 'ok') {
     statusCard.classList.add('status-ok');
     statusTitle.textContent = `Готов · ${active.name}`;
@@ -226,6 +230,8 @@ function renderRoutes(state) {
       top.appendChild(makeBadge(`Регион ${route.exitCountry || 'RU'}`, 'badge-err'));
     } else if (route.benchedUntil > Date.now()) {
       top.appendChild(makeBadge(`Пауза ${formatBenchRemaining(route.benchedUntil)}`, 'badge-warn'));
+    } else if (route.status === 'refused') {
+      top.appendChild(makeBadge('Отказ по региону', 'badge-warn'));
     } else if (route.status === 'dead') {
       top.appendChild(makeBadge('Не ответил', 'badge-err'));
     }

@@ -121,6 +121,16 @@ test('route-table: доказательство важнее скорости, �
     afterRefusal.map((r) => r.id),
     ['fast']
   );
+
+  // Единственный маршрут (hasFallback = false) НЕ уходит в паузу и остаётся в PAC
+  const solo = recordGeoRefusal(fast, now + 130_000, { hasFallback: false });
+  assert.equal(solo.status, 'refused');
+  assert.equal(solo.benchedUntil, 0);
+  const activeSolo = selectActiveRoutes([solo], now + 135_000);
+  assert.deepEqual(
+    activeSolo.map((r) => r.id),
+    ['fast']
+  );
 });
 
 test('route-table: порог смены лидера 20%', () => {

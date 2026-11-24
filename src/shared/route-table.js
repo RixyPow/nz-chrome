@@ -108,14 +108,25 @@ export function recordProofOk(route, now = Date.now()) {
 }
 
 /**
- * Фиксирует региональный отказ Gemini на маршруте.
+ * Фиксирует региональный отказ Gemini/Claude/ChatGPT на маршруте.
  * Если маршрут только что подтвердился (< 90 с назад), штраф не накладывается.
+ * Если запасного маршрута нет (hasFallback = false), пауза не ставится,
+ * чтобы PAC не сбрасывался на прямой российский IP.
  */
-export function recordGeoRefusal(route, now = Date.now()) {
+export function recordGeoRefusal(route, now = Date.now(), { hasFallback = true } = {}) {
   if (route.provenAt && now - route.provenAt < PROOF_PROTECTS_MS) {
     return {
       ...route,
       lastError: 'Разовый отказ проигнорирован (маршрут только что работал)'
+    };
+  }
+  if (!hasFallback) {
+    return {
+      ...route,
+      status: 'refused',
+      provenAt: 0,
+      benchedUntil: 0,
+      lastError: 'Отказ по региону — смените сервер VPN или добавьте другой прокси'
     };
   }
   const step = Math.min(route.penaltyStep || 0, PENALTY_STEPS_MS.length - 1);
@@ -126,7 +137,7 @@ export function recordGeoRefusal(route, now = Date.now()) {
     provenAt: 0,
     benchedUntil: now + penalty,
     penaltyStep: Math.min(step + 1, PENALTY_STEPS_MS.length - 1),
-    lastError: `Региональный отказ Gemini (пауза ${Math.round(penalty / 60000)} мин)`
+    lastError: `Региональный отказ (пауза ${Math.round(penalty / 60000)} мин)`
   };
 }
 
